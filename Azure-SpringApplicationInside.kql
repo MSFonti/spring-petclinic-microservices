@@ -1,0 +1,27 @@
+AppPlatformContainerEventLogs
+AppPlatformIngressLogs
+AppPlatformLogsforSpring
+AppPlatformLogsforSpring
+AzureMetrics
+
+AzureMetrics
+   AppPlatformLogsforSpring
+   | where Log contains "error" or Log contains "exception"
+   | project TimeGenerated , ServiceName , AppName , InstanceName , Log
+
+   AppPlatformIngressLogs
+   | where TimeGenerated > ago(1h)
+   | project TimeGenerated, Host, Request, Status, BodyBytesSent, RequestTime, ReqId, RequestHeaders
+   | sort by TimeGenerated
+
+      AppPlatformContainerEventLogs 
+   | where TimeGenerated > ago(1h)
+   | sort by TimeGenerated
+
+      AppPlatformContainerEventLogs 
+   | where TimeGenerated > ago(1h)
+   | sort by TimeGenerated
+   | summarize count() by bin(TimeGenerated, 5m), Event
+   | render timechart 
+
+   

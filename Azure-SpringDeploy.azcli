@@ -130,10 +130,12 @@ az spring app create \
 
 #Situation 12:08 Befor the connection to the database
 
+mvn clean package -DskipTestsmvn clean package -DskipTests
+
 az spring app create \
-            --service $SPRING_APPS_SERVICE \
-            --resource-group $RESOURCE_GROUP \
-            --name customers-service
+               --service $SPRING_APPS_SERVICE \
+               --resource-group $RESOURCE_GROUP \
+               --name customer-service
 
 az spring app create \
                --service $SPRING_APPS_SERVICE \

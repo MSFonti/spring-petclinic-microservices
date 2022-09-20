@@ -86,6 +86,10 @@
             <groupId>de.codecentric</groupId>
             <artifactId>chaos-monkey-spring-boot</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-keyvault-secrets</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -104,6 +108,7 @@
             <scope>test</scope>
         </dependency>
 	</dependencies>
+    
 
     <profiles>
         <profile>

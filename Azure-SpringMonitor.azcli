@@ -1,0 +1,53 @@
+  # Log Streaming Configuration
+  
+   az spring app logs \
+       --name api-gateway \
+       --resource-group $RESOURCE_GROUP \
+       --service $SPRING_APPS_SERVICE \
+       --follow
+
+az config set extension.use_dynamic_install=yes_without_prompt
+UNIQUEID="b3d5b2"
+LOCATION=westeurope
+GIT_REPO="https://github.com/MSFonti/spring-petclinic-microservices-config.git"
+GIT_USERNAME="MSFonti"
+GIT_PASSWORD=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
+SPRING_APPS_SERVICE="springappssvcb3d5b2"
+RESOURCE_GROUP="springappslab_rg_b3d5b2"
+
+
+   az spring app-insights show \
+       -g $RESOURCE_GROUP \
+       -n $SPRING_APPS_SERVICE
+# Configure Application Inside (re-enabling)
+INSTRUMENTATIONKEY=$(az monitor app-insights component show \
+       -g $RESOURCE_GROUP \
+       --query [0].connectionString \
+       -o tsv)
+az spring app-insights update \
+       -g $RESOURCE_GROUP \
+       -n $SPRING_APPS_SERVICE \
+       --sampling-rate 50 \
+       --app-insights-key $INSTRUMENTATIONKEY
+
+
+#Configure Diagnostic Settings
+   az monitor diagnostic-settings categories list \
+       --resource $SPRING_APPS_SERVICE \
+       -g $RESOURCE_GROUP \
+       --resource-type Microsoft.AppPlatform/Spring \
+       --query value[].name
+
+   WORKSPACE=springappsworkspace$UNIQUEID
+   az monitor log-analytics workspace create \
+       --resource-group $RESOURCE_GROUP \
+       --workspace-name $WORKSPACE
+
+   az monitor diagnostic-settings create \
+       --name springappslogs \
+       --resource $SPRING_APPS_SERVICE \
+       --resource-type Microsoft.AppPlatform/Spring \
+       --resource-group $RESOURCE_GROUP \
+       --workspace $WORKSPACE \
+       --logs @logs.json \
+       --metrics @metrics.json
