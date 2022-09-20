@@ -132,6 +132,8 @@ az spring app create \
 
 mvn clean package -DskipTestsmvn clean package -DskipTests
 
+#Create Applications in Spring without Endpoints
+
 az spring app create \
                --service $SPRING_APPS_SERVICE \
                --resource-group $RESOURCE_GROUP \
@@ -146,6 +148,8 @@ az spring app create \
                --service $SPRING_APPS_SERVICE \
                --resource-group $RESOURCE_GROUP \
                --name vets-service
+
+#Deploy Applications in Spring without Endpoints and SQL Connection
 
     az spring app deploy \
             --service $SPRING_APPS_SERVICE \
