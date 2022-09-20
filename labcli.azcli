@@ -11,7 +11,7 @@ git config --global user.name "MSfonti"
 
 Subscription ID 01e7a096-af18-413a-90c6-ee8aca2b46e4
 
-#Attention UNIQUE IDb3d5b2
+#Attention UNIQUE ID b3d5b2
 # PAT For GH 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
 # Spring Additional Repo URL https://github.com/MSFonti/spring-petclinic-microservices-config.git
 
@@ -39,3 +39,170 @@ curl -o discovery-server.yml https://raw.githubusercontent.com/spring-petclinic/
 curl -o tracing-server.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/tracing-server.ym
 curl -o vets-service.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/vets-service.yml
 curl -o visits-service.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/visits-service.yml
+
+
+   GIT_REPO="https://github.com/MSFonti/spring-petclinic-microservices-config.git"
+   GIT_USERNAME="MSFonti"
+   GIT_PASSWORD=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
+   SPRING_APPS_SERVICE="springappssvcb3d5b2"
+   RESOURCE_GROUP="springappslab_rg_b3d5b2"
+
+
+      az spring config-server git set \
+                           --name $SPRING_APPS_SERVICE \
+                           --resource-group $RESOURCE_GROUP \
+                           --uri $GIT_REPO \
+                           --label main \
+                           --password $GIT_PASSWORD \
+                           --username $GIT_USERNAME 
+
+mvn clean package -DskipTests
+
+SPRING_APPS_SERVICE="springappssvcb3d5b2"
+RESOURCE_GROUP="springappslab_rg_b3d5b2"
+
+az spring app create \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name api-gateway \
+            --assign-endpoint true
+
+az spring app create \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name customers-service \
+            --assign-endpoint true
+
+az spring app create \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name vets-service \
+            --assign-endpoint true
+
+az spring app create \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name visits-service \
+            --assign-endpoint true
+
+# Position 11:51 After creating app befor pushing the Jar
+
+az spring app deploy \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name api-gateway \
+            --no-wait \
+            --artifact-path spring-petclinic-api-gateway/target/spring-petclinic-api-gateway-2.6.11.jar
+
+az spring app deploy \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name customers-service \
+            --no-wait \
+            --artifact-path spring-petclinic-customers-service/target/spring-petclinic-customers-service-2.6.11.jar
+
+az spring app deploy \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name vets-service \
+            --no-wait \
+            --artifact-path spring-petclinic-vets-service/target/spring-petclinic-vets-service-2.6.11.jar
+
+az spring app deploy \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name visits-service \
+            --no-wait \
+            --artifact-path spring-petclinic-visits-service/target/spring-petclinic-visits-service-2.6.11.jar
+
+az spring app create \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name app-admin \
+            --assign-endpoint true
+
+               az spring app deploy \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name app-admin \
+            --no-wait \
+            --artifact-path spring-petclinic-admin-server/target/spring-petclinic-admin-server-2.6.11.jar
+
+#Situation 12:08 Befor the connection to the database
+
+az spring app create \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name customers-service
+
+az spring app create \
+               --service $SPRING_APPS_SERVICE \
+               --resource-group $RESOURCE_GROUP \
+               --name visits-service
+
+az spring app create \
+               --service $SPRING_APPS_SERVICE \
+               --resource-group $RESOURCE_GROUP \
+               --name vets-service
+
+    az spring app deploy \
+            --service $SPRING_APPS_SERVICE \
+            --resource-group $RESOURCE_GROUP \
+            --name customers-service \
+            --no-wait \
+            --artifact-path spring-petclinic-customers-service/target/spring-petclinic-customers-service-2.6.11.jar \
+            --env SPRING_PROFILES_ACTIVE=mysql
+
+   az spring app deploy \
+               --service $SPRING_APPS_SERVICE \
+               --resource-group $RESOURCE_GROUP \
+               --name visits-service \
+               --no-wait \
+               --artifact-path spring-petclinic-visits-service/target/spring-petclinic-visits-service-2.6.11.jar \
+               --env SPRING_PROFILES_ACTIVE=mysql
+
+     az spring app deploy \
+               --service $SPRING_APPS_SERVICE \
+               --resource-group $RESOURCE_GROUP \
+               --name vets-service \
+               --no-wait \
+               --artifact-path spring-petclinic-vets-service/target/spring-petclinic-vets-service-2.6.11.jar \
+               --env SPRING_PROFILES_ACTIVE=mysql
+
+# Validation of the deployed Applications
+      az spring app logs --service $SPRING_APPS_SERVICE \
+                   --resource-group $RESOURCE_GROUP \
+                   --name customers-service \
+                   --follow
+
+      az spring app list --service $SPRING_APPS_SERVICE \
+                      --resource-group $RESOURCE_GROUP \
+                      --output table
+
+# SQL Configuration Section
+UNIQUEID="b3d5b2"
+RESOURCE_GROUP=springappslab_rg_$UNIQUEID
+LOCATION=westeurope
+SQL_SERVER_NAME=springappsmysql$UNIQUEID
+SQL_ADMIN_PASSWORD="Home2Made4Stuf$"
+DATABASE_NAME=petclinic
+
+az mysql server create \
+      --admin-user myadmin \
+      --admin-password ${SQL_ADMIN_PASSWORD} \
+      --name ${SQL_SERVER_NAME} \
+      --resource-group ${RESOURCE_GROUP}  \
+      --sku-name GP_Gen5_2  \
+      --version 5.7 \
+      --storage-size 5120
+
+az mysql db create \
+      --server-name $SQL_SERVER_NAME \
+      --resource-group $RESOURCE_GROUP \
+      --name $DATABASE_NAME
+
+az mysql server firewall-rule create \
+    --name allAzureIPs \
+    --server ${SQL_SERVER_NAME} \
+    --resource-group ${RESOURCE_GROUP} \
+    --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
