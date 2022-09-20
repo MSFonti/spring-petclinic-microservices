@@ -1,0 +1,41 @@
+az login
+
+mvn -version
+
+mvn clean package
+
+mvn clean package -DskipTests 
+
+git config --global user.email "pfontana@microsoft.com"
+git config --global user.name "MSfonti"
+
+Subscription ID 01e7a096-af18-413a-90c6-ee8aca2b46e4
+
+#Attention UNIQUE IDb3d5b2
+# PAT For GH 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
+# Spring Additional Repo URL https://github.com/MSFonti/spring-petclinic-microservices-config.git
+
+UNIQUEID="b3d5b2"
+   RESOURCE_GROUP=springappslab_rg_$UNIQUEID
+   LOCATION=westeurope
+   az group create -g $RESOURCE_GROUP -l $LOCATION
+
+az extension add --name spring
+
+SPRING_APPS_SERVICE=springappssvc$UNIQUEID
+   az spring create --name $SPRING_APPS_SERVICE \
+                    --resource-group $RESOURCE_GROUP \
+                    --location $LOCATION \
+                    --sku Standard
+
+az config set defaults.group=$RESOURCE_GROUP defaults.spring=$SPRING_APPS_SERVICE
+
+cd spring-petclinic-microservices-config
+curl -o admin-server.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/admin-server.yml
+curl -o api-gateway.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/api-gateway.yml
+curl -o application.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/application.yml
+curl -o customers-service.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/customers-service.yml
+curl -o discovery-server.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/discovery-server.yml
+curl -o tracing-server.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/tracing-server.ym
+curl -o vets-service.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/vets-service.yml
+curl -o visits-service.yml https://raw.githubusercontent.com/spring-petclinic/spring-petclinic-microservices-config/main/visits-service.yml
