@@ -58,3 +58,46 @@ RESOURCE_GROUP="springappslab_rg_b3d5b2"
                            --label main \
                            --password $GIT_PASSWORD \
                            --username $GIT_USERNAME 
+
+mvn clean package -DskipTests
+
+az spring app create --service $SPRING_APPS_SERVICE \
+       --resource-group $RESOURCE_GROUP \
+       --name messaging-emulator \
+       --assign-endpoint true
+
+   az spring app identity assign \
+       --service $SPRING_APPS_SERVICE \
+       --resource-group $RESOURCE_GROUP \
+       --name messaging-emulator \
+       --system-assigned
+
+   MESSAGING_EMULATOR_ID=$(az spring app identity show \
+       --service $SPRING_APPS_SERVICE \
+       --resource-group $RESOURCE_GROUP \
+       --name messaging-emulator \
+       --output tsv \
+       --query principalId)
+
+   az keyvault set-policy \
+       --name $KEYVAULT_NAME \
+       --resource-group $RESOURCE_GROUP \
+       --secret-permissions get list  \
+       --object-id $MESSAGING_EMULATOR_ID
+
+   az spring app deploy --service $SPRING_APPS_SERVICE \
+       --resource-group $RESOURCE_GROUP \
+       --name messaging-emulator \
+       --no-wait \
+       --artifact-path spring-petclinic-messaging-emulator/target/spring-petclinic-messaging-emulator-2.6.11.jar \
+       --env SPRING_PROFILES_ACTIVE=mysql
+
+az spring app logs --service $SPRING_APPS_SERVICE \
+                   --resource-group $RESOURCE_GROUP \
+                   --name messaging-emulator \
+                   --follow
+
+ # After configuration of the visiting message application
+ mvn clean package -DskipTests   
+
+        

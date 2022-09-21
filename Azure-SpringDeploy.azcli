@@ -178,7 +178,7 @@ az spring app create \
 # Validation of the deployed Applications
       az spring app logs --service $SPRING_APPS_SERVICE \
                    --resource-group $RESOURCE_GROUP \
-                   --name customers-service \
+                   --name visits-service \
                    --follow
 
       az spring app list --service $SPRING_APPS_SERVICE \
