@@ -1,0 +1,72 @@
+UNIQUEID="b3d5b2"
+RESOURCE_GROUP=springappslab_rg_$UNIQUEID
+LOCATION=westeurope
+SQL_SERVER_NAME=springappsmysql$UNIQUEID
+SQL_ADMIN_PASSWORD="Home2Made4Stuf$"
+DATABASE_NAME=petclinic
+SPRING_APPS_SERVICE="springappssvcb3d5b2"
+RESOURCE_GROUP="springappslab_rg_b3d5b2"
+SERVICEBUS_NAMESPACE=springappsns$UNIQUEID
+KEYVAULT_NAME=springappskv$UNIQUEID
+GIT_REPO="https://github.com/MSFonti/spring-petclinic-microservices-config.git"
+GIT_USERNAME="MSFonti"
+GIT_PASSWORD=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
+SPRING_APPS_SERVICE="springappssvcb3d5b2"
+RESOURCE_GROUP="springappslab_rg_b3d5b2"
+SERVICEBUS_CONNECTIONSTRING="Endpoint=sb://springappsnsb3d5b2.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=e178HpKAEx1oy8PlryRWh6cb3kIsX7Ls3CtQiXq+FHs="
+
+#Create EventHub Namespace with a HUB and a Authorization Rule
+
+EVENTHUBS_NAMESPACE=springappseh$UNIQUEID
+
+   az eventhubs namespace create \
+     --resource-group $RESOURCE_GROUP \
+     --name $EVENTHUBS_NAMESPACE \
+     --location $LOCATION
+
+EVENTHUB_NAME=telemetry
+
+   az eventhubs eventhub create \
+     --name $EVENTHUB_NAME \
+     --resource-group $RESOURCE_GROUP \
+     --namespace-name $EVENTHUBS_NAMESPACE
+
+   RULE_NAME=listensendrule
+
+az eventhubs eventhub authorization-rule create \
+     --resource-group $RESOURCE_GROUP \
+     --namespace-name $EVENTHUBS_NAMESPACE \
+     --eventhub-name $EVENTHUB_NAME \
+     --name $RULE_NAME \
+     --rights Listen Send
+
+#Create EventHub Connection String and echo it
+
+EVENTHUB_CONNECTIONSTRING=$(az eventhubs eventhub authorization-rule keys list \
+       --resource-group $RESOURCE_GROUP \
+       --namespace-name $EVENTHUBS_NAMESPACE \
+       --eventhub-name $EVENTHUB_NAME \
+       --name $RULE_NAME \
+       --query primaryConnectionString \
+       --output tsv)
+
+   echo $EVENTHUB_CONNECTIONSTRING
+#
+# Endpoint=sb://springappsehb3d5b2.servicebus.windows.net/;SharedAccessKeyName=listensendrule;SharedAccessKey=v5eh/0gnHBQUEFTixwra0YA0aEVsrX3NVsYPlAieX2I=;EntityPath=telemetry
+EVENTHUB_CONNECTIONSTRING = "Endpoint=sb://springappsehb3d5b2.servicebus.windows.net/;SharedAccessKeyName=listensendrule;SharedAccessKey=v5eh/0gnHBQUEFTixwra0YA0aEVsrX3NVsYPlAieX2I=;EntityPath=telemetry"
+
+   az keyvault secret set \
+       --name SPRING-KAFKA-PROPERTIES-SASL-JAAS-CONFIG \
+       --file secretfile.txt \
+       --vault-name $KEYVAULT_NAME
+
+# Management Server recreate
+     az spring config-server git set \
+                           --name $SPRING_APPS_SERVICE \
+                           --resource-group $RESOURCE_GROUP \
+                           --uri $GIT_REPO \
+                           --label main \
+                           --password $GIT_PASSWORD \
+                           --username $GIT_USERNAME 
+
+    
