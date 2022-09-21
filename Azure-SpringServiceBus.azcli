@@ -1,0 +1,60 @@
+UNIQUEID="b3d5b2"
+RESOURCE_GROUP=springappslab_rg_$UNIQUEID
+LOCATION=westeurope
+SQL_SERVER_NAME=springappsmysql$UNIQUEID
+SQL_ADMIN_PASSWORD="Home2Made4Stuf$"
+DATABASE_NAME=petclinic
+SPRING_APPS_SERVICE="springappssvcb3d5b2"
+RESOURCE_GROUP="springappslab_rg_b3d5b2"
+SERVICEBUS_NAMESPACE=springappsns$UNIQUEID
+KEYVAULT_NAME=springappskv$UNIQUEID
+
+   az servicebus namespace create \
+       --resource-group $RESOURCE_GROUP \
+       --name $SERVICEBUS_NAMESPACE \
+       --location $LOCATION \
+       --sku Premium
+
+#Pointer 21.09.2022 07:17 -> Add Namespaces to the service Bus
+az servicebus queue create \
+       --resource-group $RESOURCE_GROUP \
+       --namespace-name $SERVICEBUS_NAMESPACE \
+       --name visits-requests
+
+ az servicebus queue create \
+       --resource-group $RESOURCE_GROUP \
+       --namespace-name $SERVICEBUS_NAMESPACE \
+       --name visits-confirmations
+
+#Get the connection strings for the Queue
+
+SERVICEBUS_CONNECTIONSTRING=$(az servicebus namespace authorization-rule keys list \
+       --resource-group $RESOURCE_GROUP \
+       --namespace-name $SERVICEBUS_NAMESPACE \
+       --name RootManageSharedAccessKey \
+       --query primaryConnectionString \
+       --output tsv)
+
+echo $SERVICEBUS_CONNECTIONSTRING
+# Documentation of the connection String
+# Endpoint=sb://springappsnsb3d5b2.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=e178HpKAEx1oy8PlryRWh6cb3kIsX7Ls3CtQiXq+FHs=
+
+az keyvault secret set \
+       --name SPRING-JMS-SERVICEBUS-CONNECTIONSTRING \
+       --value $SERVICEBUS_CONNECTIONSTRING \
+       --vault-name $KEYVAULT_NAME
+
+GIT_REPO="https://github.com/MSFonti/spring-petclinic-microservices-config.git"
+GIT_USERNAME="MSFonti"
+GIT_PASSWORD=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
+SPRING_APPS_SERVICE="springappssvcb3d5b2"
+RESOURCE_GROUP="springappslab_rg_b3d5b2"
+
+
+      az spring config-server git set \
+                           --name $SPRING_APPS_SERVICE \
+                           --resource-group $RESOURCE_GROUP \
+                           --uri $GIT_REPO \
+                           --label main \
+                           --password $GIT_PASSWORD \
+                           --username $GIT_USERNAME 
