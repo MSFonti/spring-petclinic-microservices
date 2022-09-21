@@ -69,4 +69,25 @@ EVENTHUB_CONNECTIONSTRING = "Endpoint=sb://springappsehb3d5b2.servicebus.windows
                            --password $GIT_PASSWORD \
                            --username $GIT_USERNAME 
 
-    
+    mvn clean package -DskipTests
+
+   az spring app deploy \
+     --service $SPRING_APPS_SERVICE \
+     --resource-group $RESOURCE_GROUP \
+     --name customers-service \
+     --no-wait \
+     --artifact-path spring-petclinic-customers-service/target/spring-petclinic-customers-service-2.6.11.jar \
+     --env SPRING_PROFILES_ACTIVE=mysql
+
+        az spring app logs \
+       --name customers-service \
+       --resource-group $RESOURCE_GROUP \
+       --service $SPRING_APPS_SERVICE \
+       --follow
+
+#Attention Bash for Kafka Repo
+ mvn exec:java -Dexec.mainClass="TestProducer"
+
+ az spring app logs -f --service $SPRING_APPS_SERVICE \
+       --resource-group $RESOURCE_GROUP \
+       --name customers-service

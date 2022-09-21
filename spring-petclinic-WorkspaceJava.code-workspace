@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "spring-petclinic-microservices-config",
+			"path": "../../JavaSpringConfigRepo/spring-petclinic-microservices-config"
+		},
+		{
+			"name": "Deploying-and-Running-Java-Applications-in-Azure-Spring-Apps",
+			"path": "../../EXTRAFolder/Deploying-and-Running-Java-Applications-in-Azure-Spring-Apps"
+		},
+		{
+			"name": "azure-event-hubs-for-kafka",
+			"path": "../../KafKASettings/azure-event-hubs-for-kafka"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}
